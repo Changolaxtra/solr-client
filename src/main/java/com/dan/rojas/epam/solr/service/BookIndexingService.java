@@ -2,7 +2,7 @@ package com.dan.rojas.epam.solr.service;
 
 import com.dan.rojas.epam.solr.configuration.BookIndexingConfig;
 import com.dan.rojas.epam.solr.document.BookDocument;
-import com.dan.rojas.epam.solr.repository.BookRepository;
+import com.dan.rojas.epam.solr.repository.BookSolrRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.siegmann.epublib.domain.Book;
@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -24,7 +25,7 @@ public class BookIndexingService {
 
   private final BookIndexingConfig bookIndexingConfig;
   private final BookMappingService bookMappingService;
-  private final BookRepository bookRepository;
+  private final BookSolrRepository bookSolrRepository;
 
   public void processFiles() {
     final File directory = new File(bookIndexingConfig.getDirectory());
@@ -52,8 +53,10 @@ public class BookIndexingService {
       final EpubReader epubReader = new EpubReader();
       final Book epub = epubReader.readEpub(fileInputStream);
       final BookDocument bookDocument = bookMappingService.getBookDocument(epub);
-      bookRepository.save(bookDocument);
-      log.info("Processed Book: {}", bookDocument.getTitle());
+      CompletableFuture.runAsync(() -> {
+        bookSolrRepository.createIndex(bookDocument);
+        log.info("Processed Book: {}", bookDocument.getTitle());
+      });
     } catch (IOException e) {
       log.error("Error creating book for solr", e);
     }

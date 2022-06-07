@@ -6,14 +6,15 @@ import lombok.extern.slf4j.Slf4j;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Metadata;
 import nl.siegmann.epublib.domain.Resource;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,12 +26,21 @@ public class BookMappingService {
 
   public BookDocument getBookDocument(final Book epub) {
     final BookDocument.BookDocumentBuilder builder = BookDocument.builder();
-    builder.id(UUID.randomUUID().toString());
+    mapId(builder, epub);
     mapTitle(builder, epub);
     mapLanguage(builder, epub);
     mapAuthors(builder, epub);
     mapContent(builder, epub);
     return builder.build();
+  }
+
+  private void mapId(final BookDocument.BookDocumentBuilder builder, final Book epub) {
+    final String title = Optional.ofNullable(epub).map(Book::getTitle).orElse("");
+    final byte[] md5Digest = DigestUtils.md5Digest((title + String.join("", getAuthors(epub)))
+        .getBytes(StandardCharsets.UTF_8));
+    final String hexId = new String(Hex.encodeHex(md5Digest));
+    builder.id(hexId);
+    log.info("Id {} generated for {}", hexId, title);
   }
 
   private void mapTitle(final BookDocument.BookDocumentBuilder builder, final Book epub) {
@@ -50,13 +60,7 @@ public class BookMappingService {
   }
 
   private void mapAuthors(final BookDocument.BookDocumentBuilder builder, final Book epub) {
-    final List<String> authors = Optional.ofNullable(epub)
-        .map(Book::getMetadata)
-        .map(Metadata::getAuthors)
-        .orElse(new ArrayList<>())
-        .stream()
-        .map(author -> String.format(AUTHOR_TEMPLATE, author.getFirstname(), author.getLastname()))
-        .collect(Collectors.toList());
+    final List<String> authors = getAuthors(epub);
     builder.authors(authors);
   }
 
@@ -79,6 +83,16 @@ public class BookMappingService {
       content = "";
     }
     return content;
+  }
+
+  private List<String> getAuthors(final Book epub) {
+    return Optional.ofNullable(epub)
+        .map(Book::getMetadata)
+        .map(Metadata::getAuthors)
+        .orElse(new ArrayList<>())
+        .stream()
+        .map(author -> String.format(AUTHOR_TEMPLATE, author.getFirstname(), author.getLastname()))
+        .collect(Collectors.toList());
   }
 
 
