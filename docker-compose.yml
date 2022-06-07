@@ -1,0 +1,28 @@
+version: '3.5'
+services:
+  solr:
+    hostname: solr-server
+    image: solr:9.0.0
+    ports:
+      - "8983:8983"
+    volumes:
+      - "./books_core:/var/solr/data/books_core"
+    networks:
+      - solr-net
+  search:
+    depends_on:
+      - solr
+    hostname: search-client
+    image: openjdk:8-jdk-alpine
+    ports:
+      - "8080:8080"
+    volumes:
+      - "./target/solr-client-1.0.jar:/app.jar"
+      - "./books/:/books"
+    command: "java -jar app.jar"
+    networks:
+      - solr-net
+
+networks:
+  solr-net:
+    driver: bridge
