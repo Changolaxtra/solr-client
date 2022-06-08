@@ -1,27 +1,37 @@
 package com.dan.rojas.epam.solr.document;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
-import lombok.Value;
+import org.apache.solr.client.solrj.beans.Field;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 
 import java.util.List;
 
-@Value
+@Getter
+@Setter
 @Builder
-@EqualsAndHashCode(of = {"id"})
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = {"id"})
 @SolrDocument(collection = "books")
 public class BookDocument {
   @Id
   @Indexed(name = "id", type = "string")
-  String id;
+  private String id;
   @Indexed(name = "title", type = "string")
-  String title;
-  List<String> authors;
-  String language;
-  String content;
+  private String title;
+  @Field
+  private List<String> authors;
+  @Field
+  private String language;
+  @Field
+  private String content;
 }

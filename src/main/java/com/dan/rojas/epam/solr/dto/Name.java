@@ -7,19 +7,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
 
-import java.util.List;
-
 @Setter
 @Getter
 @Builder
 @Jacksonized
 @NoArgsConstructor
 @AllArgsConstructor
-public class Book {
-  private String id;
-  private String title;
-  private List<String> authors;
-  private String language;
-  private String content;
+public class Name {
+  private String name;
 }
-

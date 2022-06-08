@@ -2,7 +2,7 @@ package com.dan.rojas.epam.solr.service;
 
 import com.dan.rojas.epam.solr.configuration.BookIndexingConfig;
 import com.dan.rojas.epam.solr.document.BookDocument;
-import com.dan.rojas.epam.solr.repository.BookSolrRepository;
+import com.dan.rojas.epam.solr.repository.BookSolrIndexingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.siegmann.epublib.domain.Book;
@@ -25,7 +25,7 @@ public class BookIndexingService {
 
   private final BookIndexingConfig bookIndexingConfig;
   private final BookMappingService bookMappingService;
-  private final BookSolrRepository bookSolrRepository;
+  private final BookSolrIndexingRepository bookSolrIndexingRepository;
 
   public void processFiles() {
     final File directory = new File(bookIndexingConfig.getDirectory());
@@ -54,7 +54,7 @@ public class BookIndexingService {
       final Book epub = epubReader.readEpub(fileInputStream);
       final BookDocument bookDocument = bookMappingService.getBookDocument(epub);
       CompletableFuture.runAsync(() -> {
-        bookSolrRepository.createIndex(bookDocument);
+        bookSolrIndexingRepository.createIndex(bookDocument);
         log.info("Processed Book: {}", bookDocument.getTitle());
       });
     } catch (IOException e) {

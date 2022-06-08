@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Date;
 
 @RestController
-@RequestMapping("/indexing")
+@RequestMapping("/api/v1/book/indexing")
 @RequiredArgsConstructor
 public class BookIndexingController {
 

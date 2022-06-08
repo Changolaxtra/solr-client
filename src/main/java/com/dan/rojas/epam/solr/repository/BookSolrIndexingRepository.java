@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @RequiredArgsConstructor
 @Repository
-public class BookSolrRepository {
+public class BookSolrIndexingRepository {
 
   private final SolrTemplate solrTemplate;
   private final BookIndexingConfig bookIndexingConfig;
