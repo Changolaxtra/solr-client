@@ -2,6 +2,7 @@ package com.dan.rojas.epam.solr.document;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,17 +15,16 @@ import org.springframework.data.solr.core.mapping.SolrDocument;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @Builder
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = {"id"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @SolrDocument(collection = "books")
 public class BookDocument {
   @Id
   @Indexed(name = "id", type = "string")
+  @EqualsAndHashCode.Include
   private String id;
   @Indexed(name = "title", type = "string")
   private String title;
